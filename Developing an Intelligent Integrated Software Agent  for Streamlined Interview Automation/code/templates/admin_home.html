@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow p-6">
+    <h1 class="text-2xl font-bold">Admin Home</h1>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="rounded-lg border p-4">
+        <p class="text-sm text-slate-600">Total users</p>
+        <p class="text-2xl font-semibold">{{ users_count }}</p>
+      </div>
+      <div class="rounded-lg border p-4">
+        <p class="text-sm text-slate-600">Active users</p>
+        <p class="text-2xl font-semibold">{{ active_count }}</p>
+      </div>
+      <div class="rounded-lg border p-4">
+        <p class="text-sm text-slate-600">Interview candidates</p>
+        <p class="text-2xl font-semibold">{{ candidates_count }}</p>
+      </div>
+      <div class="rounded-lg border p-4">
+        <p class="text-sm text-slate-600">Evaluated answers</p>
+        <p class="text-2xl font-semibold">{{ responses_count }}</p>
+      </div>
+      <div class="rounded-lg border p-4">
+        <p class="text-sm text-slate-600">Average score</p>
+        <p class="text-2xl font-semibold">
+          {% if average_score is not None %}{{ average_score }}/10{% else %}No scores yet{% endif %}
+        </p>
+      </div>
+    </div>
+    <div class="mt-6 flex gap-3">
+      <a class="px-4 py-2 rounded bg-blue-600 text-white" href="{% url 'admin_dashboard' %}">Open dashboard</a>
+      <a class="px-4 py-2 rounded bg-slate-700 text-white" href="{% url 'home' %}">Main page</a>
+    </div>
+  </div>
+</body>
+</html>

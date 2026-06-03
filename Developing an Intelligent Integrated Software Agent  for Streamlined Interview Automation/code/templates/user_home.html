@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-6">
+    <h1 class="text-2xl font-bold">User Home</h1>
+    <p class="text-slate-600 mt-2">Your account is connected and templates are now routed correctly.</p>
+    <div class="mt-6 flex gap-3">
+      <a class="px-4 py-2 rounded bg-blue-600 text-white" href="{% url 'home' %}">Main page</a>
+      <a class="px-4 py-2 rounded bg-emerald-600 text-white" href="{% url 'interview_page' %}">Start Interview</a>
+      <a class="px-4 py-2 rounded bg-slate-700 text-white" href="{% url 'user_logout' %}">Logout</a>
+    </div>
+  </div>
+</body>
+</html>

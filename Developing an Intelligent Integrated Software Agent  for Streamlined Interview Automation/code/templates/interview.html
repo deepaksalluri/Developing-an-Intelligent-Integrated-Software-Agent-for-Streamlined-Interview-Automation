@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8 px-4">
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">AI Interview Assistant</h1>
+        <a href="{% url 'UserHome' %}" class="text-sm px-3 py-2 rounded bg-slate-700 text-white">Back</a>
+    </div>
+
+    <p id="error" class="hidden mb-4 text-sm rounded border border-red-200 bg-red-50 text-red-700 px-3 py-2"></p>
+
+    <div id="startBox">
+        <input id="name" class="border p-2 w-full mb-3 rounded" placeholder="Your Name" required>
+        <input id="email" class="border p-2 w-full mb-3 rounded" placeholder="Your Email" required>
+        <input id="job_description" class="border p-2 w-full mb-4 rounded" placeholder="Enter Job Role" required>
+
+        <button id="startBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">
+            Start Interview
+        </button>
+    </div>
+
+    <div id="interviewBox" class="hidden mt-6">
+        <div class="text-sm text-slate-500 mb-1">Question</div>
+        <div id="question" class="text-lg font-semibold mb-3"></div>
+
+        <textarea id="answer" class="border p-2 w-full mb-3 rounded" placeholder="Type your answer here..."></textarea>
+
+        <button id="submitBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60">
+            Submit Answer
+        </button>
+
+        <div id="resultBox" class="hidden mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="font-semibold text-emerald-900">Evaluation Result</div>
+                <div id="score" class="text-xl font-bold text-emerald-700"></div>
+            </div>
+            <div id="feedback" class="text-gray-700 whitespace-pre-line"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let candidateId = null;
+let currentQuestion = "";
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return "";
+}
+
+function showError(message) {
+    const errorEl = document.getElementById("error");
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+}
+
+function clearError() {
+    const errorEl = document.getElementById("error");
+    errorEl.textContent = "";
+    errorEl.classList.add("hidden");
+}
+
+async function startInterview() {
+    clearError();
+    const startBtn = document.getElementById("startBtn");
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const jobDescription = document.getElementById("job_description").value.trim();
+
+    if (!name || !email || !jobDescription) {
+        showError("Please fill all fields before starting the interview.");
+        return;
+    }
+
+    const body = new URLSearchParams({
+        name,
+        email,
+        job_description: jobDescription,
+    });
+
+    startBtn.disabled = true;
+    startBtn.innerText = "Generating question...";
+
+    try {
+        const res = await fetch("/api/start-interview/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: body.toString(),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+            showError(data.error || "Unable to start interview.");
+            return;
+        }
+
+        candidateId = data.candidate_id;
+        currentQuestion = data.question;
+
+        document.getElementById("question").innerText = currentQuestion;
+        document.getElementById("startBox").classList.add("hidden");
+        document.getElementById("interviewBox").classList.remove("hidden");
+    } catch (error) {
+        showError("Unable to connect to the interview service.");
+    } finally {
+        startBtn.disabled = false;
+        startBtn.innerText = "Start Interview";
+    }
+}
+
+async function submitAnswer() {
+    clearError();
+    const submitBtn = document.getElementById("submitBtn");
+
+    const answer = document.getElementById("answer").value.trim();
+    document.getElementById("feedback").innerText = "";
+    document.getElementById("resultBox").classList.add("hidden");
+    if (!answer) {
+        showError("Please enter an answer before submitting.");
+        return;
+    }
+
+    const body = new URLSearchParams({
+        candidate_id: candidateId,
+        question: currentQuestion,
+        answer,
+    });
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Evaluating...";
+
+    try {
+        const res = await fetch("/api/answer-question/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: body.toString(),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+            showError(data.error || "Unable to submit answer.");
+            return;
+        }
+
+        document.getElementById("score").innerText = `${data.score}/10`;
+        document.getElementById("feedback").innerText = data.feedback;
+        document.getElementById("resultBox").classList.remove("hidden");
+        document.getElementById("answer").value = "";
+    } catch (error) {
+        showError("Unable to connect to the evaluation service.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit Answer";
+    }
+}
+
+document.getElementById("startBtn").addEventListener("click", startInterview);
+document.getElementById("submitBtn").addEventListener("click", submitAnswer);
+</script>
+</body>
+</html>

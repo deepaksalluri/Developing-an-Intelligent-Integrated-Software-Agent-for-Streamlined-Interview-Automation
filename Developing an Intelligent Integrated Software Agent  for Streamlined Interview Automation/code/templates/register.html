@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white rounded-xl shadow p-6">
+    <h1 class="text-2xl font-bold mb-4">Create Account</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="mb-3 rounded border px-3 py-2 text-sm">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'register_view' %}" class="space-y-3">
+      {% csrf_token %}
+      <input name="name" type="text" placeholder="Full name" class="w-full border rounded px-3 py-2" required />
+      <input name="email" type="email" placeholder="Email" class="w-full border rounded px-3 py-2" required />
+      <input name="password" type="password" placeholder="Password" class="w-full border rounded px-3 py-2" required />
+      <button class="w-full bg-emerald-600 text-white rounded py-2">Register</button>
+    </form>
+
+    <p class="mt-4 text-sm">Already have an account? <a href="{% url 'UserLogin' %}" class="text-blue-600">Login</a></p>
+  </div>
+</body>
+</html>

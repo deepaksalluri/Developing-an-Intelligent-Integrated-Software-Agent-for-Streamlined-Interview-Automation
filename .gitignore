@@ -1,0 +1,16 @@
+.venv/
+venv/
+env/
+code/.venv/
+*.sqlite3
+__pycache__/
+*.pyc
+.DS_Store
+__MACOSX/
+.env
+.zencoder/
+.zenflow/
+staticfiles/
+overview.docx
+
+
